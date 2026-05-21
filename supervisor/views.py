@@ -177,12 +177,9 @@ def monitor(request, session_id):
 
 
 def monitor_refresh(request, session_id):
-    print(f"DEBUG: Monitor refresh hit for session {session_id}")
     session = get_object_or_404(AuditSession, id=session_id)
     cutoff = timezone.now() - timedelta(minutes=5)
-
     auditors = AuditorSession.objects.filter(session=session)
-    print(f"DEBUG: Found {auditors.count()} auditors in session")
 
     # Multi-auditor stats in one query
     log_stats_qs = AuditLogEntry.objects.filter(session=session).values('auditor_id').annotate(
@@ -252,48 +249,18 @@ def monitor_refresh(request, session_id):
     return render(request, 'supervisor/monitor.html', context)
 
 
+from .logic import get_session_variance_data, get_session_activity_data
+
 def variance(request, session_id):
     session = get_object_or_404(AuditSession, id=session_id)
-
-    # Use aggregation to get actual sums for all barcodes in this session in one query
-    log_sums = AuditLogEntry.objects.filter(session=session).values('barcode').annotate(
-        actual_total=Sum('delta')
-    )
-    actual_map = {item['barcode']: item['actual_total'] for item in log_sums}
-
-    catalog_items = CatalogItem.objects.filter(session=session)
+    data = get_session_variance_data(session)
     
-    variance_data = []
-    for item in catalog_items:
-        actual_sum = actual_map.get(item.barcode, 0)
-        variance = actual_sum - (item.expected_quantity or 0)
-
-        variance_data.append({
-            'barcode': item.barcode,
-            'product_name': item.product_name,
-            'expected': item.expected_quantity or 0,
-            'actual': actual_sum,
-            'variance': variance,
-            'category': item.category,
-        })
-
-    # Find unlisted items (those in logs but not in catalog)
-    catalog_barcodes = set(catalog_items.values_list('barcode', flat=True))
-    unlisted = AuditLogEntry.objects.filter(
-        session=session,
-        is_unlisted=True
-    ).values('unlisted_label').annotate(
-        total=Sum('delta'),
-        count=Count('id')
-    ).order_by('-total')
-
-    variance_data.sort(key=lambda x: abs(x['variance']), reverse=True)
-
     context = {
         'session': session,
-        'variance_data': variance_data,
-        'unlisted_items': list(unlisted),
-        'total_discrepancies': sum(1 for v in variance_data if v['variance'] != 0),
+        'variance_data': data['variance_data'],
+        'unlisted_items': data['unlisted_items'],
+        'total_discrepancies': data['total_discrepancies'],
+        'accuracy': data['accuracy'],
     }
 
     return render(request, 'supervisor/variance.html', context)

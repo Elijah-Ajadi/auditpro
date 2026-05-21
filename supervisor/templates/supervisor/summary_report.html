@@ -1,0 +1,229 @@
+{% extends "base_supervisor.html" %}
+
+{% block title %}Executive Summary - {{ session.name }}{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .metric-value {
+        font-size: 3.5rem;
+        font-weight: 800;
+        letter-spacing: -0.05em;
+        line-height: 1;
+        margin: 1rem 0;
+        color: white;
+    }
+
+    .metric-glow-primary {
+        text-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
+        color: var(--accent-primary);
+    }
+
+    .metric-glow-secondary {
+        text-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
+        color: var(--accent-secondary);
+    }
+
+    .metric-glow-error {
+        text-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+        color: var(--accent-error);
+    }
+
+    .card-header-icon {
+        background: var(--bg-muted);
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media print {
+        .no-print { display: none !important; }
+        body { background: white !important; color: black !important; background-image: none !important; }
+        .container { max-width: 100% !important; padding: 0 !important; }
+        .card { 
+            background: white !important; 
+            color: black !important; 
+            border: 1px solid #e2e8f0 !important; 
+            box-shadow: none !important;
+            break-inside: avoid;
+        }
+        .metric-value { text-shadow: none !important; color: black !important; }
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3.5rem;">
+    <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">
+             <i data-lucide="chevron-left" style="width: 14px; height: 14px;"></i>
+             <a href="{% url 'supervisor:session_detail' session.id %}" style="color: inherit; text-decoration: none;">Back to Session</a>
+        </div>
+        <h1 style="font-size: 2.75rem; font-weight: 900; letter-spacing: -0.05em; margin-bottom: 0.5rem;">Executive Summary</h1>
+        <div style="display: flex; align-items: center; gap: 1rem; color: var(--text-secondary);">
+            <span>{{ session.name }}</span>
+            <span style="width: 4px; height: 4px; background: var(--text-muted); border-radius: 50%;"></span>
+            <span>{{ session.created_at|date:"M d, Y" }}</span>
+        </div>
+    </div>
+    <div class="no-print">
+        <button onclick="window.print()" class="btn btn-primary" style="height: 56px; padding: 0 2rem; font-size: 1rem; border-radius: 1rem;">
+            <i data-lucide="printer" style="width: 20px; height: 20px;"></i>
+            Print Report
+        </button>
+    </div>
+</div>
+
+<div class="bento-grid" style="margin-bottom: 2.5rem;">
+    <!-- Accuracy Glow Card -->
+    <div class="card span-4" style="display: flex; flex-direction: column; justify-content: center; text-align: center; background: radial-gradient(circle at center, rgba(99, 102, 241, 0.08) 0%, transparent 70%);">
+        <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">Audit Accuracy</p>
+        <div class="metric-value {% if data.accuracy >= 95 %}metric-glow-primary{% elif data.accuracy >= 80 %}metric-glow-secondary{% else %}metric-glow-error{% endif %}">
+            {{ data.accuracy }}%
+        </div>
+        <p style="font-size: 0.8125rem; color: var(--text-secondary);">Net system reconciliation</p>
+    </div>
+
+    <!-- Found Glow Card -->
+    <div class="card span-4" style="display: flex; flex-direction: column; justify-content: center; text-align: center; background: radial-gradient(circle at center, rgba(6, 182, 212, 0.08) 0%, transparent 70%);">
+        <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">Total Found</p>
+        <div class="metric-value metric-glow-secondary">
+            {{ data.total_actual }}
+        </div>
+        <p style="font-size: 0.8125rem; color: var(--text-secondary);">Items verified on shelf</p>
+    </div>
+
+    <!-- Discrepancy Card -->
+    <div class="card span-4" style="display: flex; flex-direction: column; justify-content: center; text-align: center; background: radial-gradient(circle at center, rgba(239, 68, 68, 0.08) 0%, transparent 70%);">
+        <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">Variances</p>
+        <div class="metric-value metric-glow-error">
+            {{ data.total_discrepancies }}
+        </div>
+        <p style="font-size: 0.8125rem; color: var(--text-secondary);">Requiring investigation</p>
+    </div>
+</div>
+
+<div class="bento-grid" style="margin-bottom: 2.5rem;">
+    <div class="card span-8">
+        <div class="card-title">
+            <i data-lucide="bar-chart" style="width: 18px; height: 18px; color: var(--accent-primary);"></i>
+            Volume per Category
+        </div>
+        <div style="height: 350px;">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+    <div class="card span-4">
+        <div class="card-title">
+            <i data-lucide="pie-chart" style="width: 18px; height: 18px; color: var(--accent-secondary);"></i>
+            Audit Integrity
+        </div>
+        <div style="height: 350px;">
+            <canvas id="integrityChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title" style="margin-bottom: 2rem;">
+        <i data-lucide="alert-circle" style="width: 18px; height: 18px; color: var(--accent-error);"></i>
+        High Impact Variations
+    </div>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Detail</th>
+                    <th style="text-align: center;">Expected</th>
+                    <th style="text-align: center;">Actual</th>
+                    <th style="text-align: right;">Variance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in data.variance_data|slice:":10" %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 700; color: white;">{{ item.product_name }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace;">{{ item.barcode }}</div>
+                    </td>
+                    <td style="text-align: center;">{{ item.expected }}</td>
+                    <td style="text-align: center;">{{ item.actual }}</td>
+                    <td style="text-align: right;">
+                        <span style="font-weight: 800; color: {% if item.variance > 0 %}var(--accent-success){% elif item.variance < 0 %}var(--accent-error){% else %}var(--text-muted){% endif %};">
+                            {% if item.variance > 0 %}+{% endif %}{{ item.variance }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const textColor = '#94a3b8';
+    const gridColor = 'rgba(255, 255, 255, 0.05)';
+
+    // Category Chart
+    const catCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(catCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for cat in categories %}'{{ cat }}',{% endfor %}],
+            datasets: [
+                {
+                    label: 'Expected',
+                    data: [{% for cat, vals in categories.items %}{{ vals.expected }},{% endfor %}],
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: 8
+                },
+                {
+                    label: 'Captured',
+                    data: [{% for cat, vals in categories.items %}{{ vals.actual }},{% endfor %}],
+                    backgroundColor: '#6366f1',
+                    borderRadius: 8
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { grid: { color: gridColor }, ticks: { color: textColor, font: { family: 'Plus Jakarta Sans' } }, border: { display: false } },
+                x: { grid: { display: false }, ticks: { color: textColor, font: { family: 'Plus Jakarta Sans' } } }
+            },
+            plugins: {
+                legend: { position: 'top', labels: { color: textColor, font: { family: 'Plus Jakarta Sans', weight: '600' } } }
+            }
+        }
+    });
+
+    // Integrity Chart
+    const intCtx = document.getElementById('integrityChart').getContext('2d');
+    new Chart(intCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Accurate', 'Discrepancy'],
+            datasets: [{
+                data: [{{ session.catalog_items.count }} - {{ data.total_discrepancies }}, {{ data.total_discrepancies }}],
+                backgroundColor: ['#10b981', '#ef4444'],
+                hoverOffset: 12,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            cutout: '75%',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Plus Jakarta Sans', weight: '600' }, padding: 30 } }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

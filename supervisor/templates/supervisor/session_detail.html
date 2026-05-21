@@ -102,6 +102,65 @@
             Variance Console
         </a>
     </div>
+
+    <!-- Export Intelligence Suite -->
+    <div class="card span-12" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%); margin-top: 2.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+            <div>
+                <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">Export Center</h3>
+                <p style="color: var(--text-secondary);">Download data and intelligence reports for this session.</p>
+            </div>
+            <div style="padding: 0.75rem; background: var(--glass-bg); border-radius: 0.75rem;">
+                <i data-lucide="download-cloud" style="width: 24px; height: 24px; color: var(--accent-primary);"></i>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;">
+            <!-- Reconciliation CSV -->
+            <a href="{% url 'supervisor:export_reconciliation' session.id %}" style="padding: 1.25rem; text-decoration: none; transition: 0.3s; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.02); border-radius: 1rem; display: block;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <div style="padding: 0.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 0.5rem;">
+                        <i data-lucide="file-spreadsheet" style="width: 18px; height: 18px; color: #10b981;"></i>
+                    </div>
+                    <span style="font-weight: 700; color: white; font-size: 0.9375rem;">Reconciliation</span>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);">CSV for Excel & ERP import</p>
+            </a>
+
+            <!-- Audit Trail -->
+            <a href="{% url 'supervisor:export_audit_trail' session.id %}" style="padding: 1.25rem; text-decoration: none; transition: 0.3s; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.02); border-radius: 1rem; display: block;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <div style="padding: 0.5rem; background: rgba(99, 102, 241, 0.1); border-radius: 0.5rem;">
+                        <i data-lucide="history" style="width: 18px; height: 18px; color: #6366f1;"></i>
+                    </div>
+                    <span style="font-weight: 700; color: white; font-size: 0.9375rem;">Audit Trail</span>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);">Full log of all activities</p>
+            </a>
+
+            <!-- Adjustment Data -->
+            <a href="{% url 'supervisor:export_adjustment' session.id %}" style="padding: 1.25rem; text-decoration: none; transition: 0.3s; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.02); border-radius: 1rem; display: block;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <div style="padding: 0.5rem; background: rgba(245, 158, 11, 0.1); border-radius: 0.5rem;">
+                        <i data-lucide="terminal" style="width: 18px; height: 18px; color: #f59e0b;"></i>
+                    </div>
+                    <span style="font-weight: 700; color: white; font-size: 0.9375rem;">System Adjust</span>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);">JSON for automated sync</p>
+            </a>
+
+            <!-- Executive Summary -->
+            <a href="{% url 'supervisor:executive_summary' session.id %}" style="padding: 1.25rem; text-decoration: none; transition: 0.3s; border: 2px solid var(--accent-primary); background: rgba(99, 102, 241, 0.05); border-radius: 1rem; display: block;" onmouseover="this.style.background='rgba(99, 102, 241, 0.1)'" onmouseout="this.style.background='rgba(99, 102, 241, 0.05)'">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <div style="padding: 0.5rem; background: var(--accent-primary); border-radius: 0.5rem;">
+                        <i data-lucide="pie-chart" style="width: 18px; height: 18px; color: white;"></i>
+                    </div>
+                    <span style="font-weight: 700; color: white; font-size: 0.9375rem;">Summary Report</span>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);">Premium Intelligence Dashboard</p>
+            </a>
+        </div>
+    </div>
     {% endif %}
 
     {% if session.status != 'archived' %}
