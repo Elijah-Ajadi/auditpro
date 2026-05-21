@@ -1,0 +1,48 @@
+{% if auditors %}
+<table>
+    <thead>
+        <tr>
+            <th>Auditor</th>
+            <th>Zone</th>
+            <th>Scans</th>
+            <th>Zones</th>
+            <th>Last Active</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in auditors %}
+        <tr>
+            <td style="font-weight: 600;">{{ a.nickname }}</td>
+            <td><code style="background: var(--bg-tertiary); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">{{ a.zone }}</code></td>
+            <td>{{ a.total_scans }}</td>
+            <td>{{ a.zones_covered }}</td>
+            <td style="color: var(--text-muted);">
+                {% if a.last_activity %}
+                    {{ a.last_activity|timesince }} ago
+                {% else %}
+                    No activity
+                {% endif %}
+            </td>
+            <td>
+                {% if a.is_online %}
+                    <span style="display: inline-flex; align-items: center; gap: 0.375rem; color: var(--success-green); font-size: 0.75rem; font-weight: 600;">
+                        <span style="width: 8px; height: 8px; background: var(--success-green); border-radius: 50%;"></span>
+                        Online
+                    </span>
+                {% else %}
+                    <span style="display: inline-flex; align-items: center; gap: 0.375rem; color: var(--text-muted); font-size: 0.75rem;">
+                        <span style="width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%;"></span>
+                        Idle
+                    </span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+    <p>No auditors have joined this session yet.</p>
+</div>
+{% endif %}

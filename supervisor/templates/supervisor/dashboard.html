@@ -1,0 +1,114 @@
+{% extends "base_supervisor.html" %}
+
+{% block title %}Audit Pro - Command Center{% endblock %}
+
+{% block main %}
+<div style="margin-bottom: 2.5rem;">
+    <h2 style="font-size: 1.875rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.5rem;">Command Center</h2>
+    <p style="color: var(--text-secondary);">Real-time monitoring and inventory session management.</p>
+</div>
+
+<!-- Stats Overview -->
+<div class="bento-grid" style="margin-bottom: 2.5rem;">
+    <div class="card span-4" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+            <div>
+                <p style="color: var(--text-secondary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">Active Sessions</p>
+                <h3 style="font-size: 2rem; font-weight: 800;">{{ sessions.count }}</h3>
+            </div>
+            <div style="background: var(--accent-primary); padding: 0.75rem; border-radius: 0.75rem; color: white;">
+                <i data-lucide="activity" style="width: 24px; height: 24px;"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card span-4" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+            <div>
+                <p style="color: var(--text-secondary); font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">System Health</p>
+                <h3 style="font-size: 2rem; font-weight: 800; color: var(--accent-success);">Optimal</h3>
+            </div>
+            <div style="background: var(--accent-success); padding: 0.75rem; border-radius: 0.75rem; color: white;">
+                <i data-lucide="shield-check" style="width: 24px; height: 24px;"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="card span-4" style="padding: 0; border: none; background: none;">
+        <a href="{% url 'supervisor:audit_create' %}" class="btn btn-primary" style="width: 100%; height: 100%; border-radius: 1.25rem; flex-direction: column; gap: 0.75rem; font-size: 1rem;">
+            <i data-lucide="plus-circle" style="width: 32px; height: 32px;"></i>
+            Initialize New Session
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">
+        <i data-lucide="layers" style="width: 20px; height: 20px; color: var(--accent-primary);"></i>
+        Ongoing Audit Sessions
+    </div>
+    
+    {% if sessions %}
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Session Identity</th>
+                    <th>Security PIN</th>
+                    <th>Status</th>
+                    <th>Timeline</th>
+                    <th style="text-align: right;">Operations</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in sessions %}
+                <tr>
+                    <td data-label="Session Identity">
+                        <div style="font-weight: 700; font-size: 1rem; color: white; margin-bottom: 0.25rem;">{{ s.name }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">{{ s.id|truncatechars:12 }}</div>
+                    </td>
+                    <td data-label="Security PIN">
+                        <div style="background: var(--bg-muted); color: var(--accent-secondary); font-family: monospace; font-size: 1rem; font-weight: 800; padding: 0.375rem 0.75rem; border-radius: 0.5rem; display: inline-block; border: 1px solid var(--border-glass);">
+                            {{ s.session_pin }}
+                        </div>
+                    </td>
+                    <td data-label="Status">
+                        <span style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 700; background: rgba(16, 185, 129, 0.1); color: var(--accent-success);">
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent-success);"></span>
+                            ACTIVE
+                        </span>
+                    </td>
+                    <td data-label="Timeline" style="color: var(--text-secondary); font-size: 0.8125rem;">
+                        {{ s.created_at|timesince }} ago
+                    </td>
+                    <td style="text-align: right;">
+                        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                            <a href="{% url 'supervisor:session_detail' s.id %}" class="btn btn-secondary" style="padding: 0.5rem 1rem;">
+                                <i data-lucide="external-link" style="width: 16px; height: 16px;"></i>
+                                Enter
+                            </a>
+                            <form action="{% url 'supervisor:archive_session' s.id %}" method="POST" onsubmit="return confirm('Archive this session?')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem; color: var(--accent-error);">
+                                    <i data-lucide="archive" style="width: 16px; height: 16px;"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 4rem 2rem;">
+        <div style="background: var(--bg-muted); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+            <i data-lucide="package-search" style="width: 32px; height: 32px; color: var(--text-muted);"></i>
+        </div>
+        <h3 style="font-weight: 700; margin-bottom: 0.5rem;">No active audits</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Get started by creating your first inventory session.</p>
+        <a href="{% url 'supervisor:audit_create' %}" class="btn btn-primary">Create Session</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "base_supervisor.html" %}
+
+{% block title %}Session Matrix - {{ session.name }}{% endblock %}
+
+{% block main %}
+<div style="max-width: 1000px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <a href="{% url 'supervisor:dashboard' %}" style="color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 0.25rem; font-size: 0.875rem; font-weight: 600;">
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                    Back
+                </a>
+            </div>
+            <h2 style="font-size: 2.25rem; font-weight: 800; letter-spacing: -0.025em;">{{ session.name }}</h2>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+                <span style="font-size: 0.875rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.375rem;">
+                    <i data-lucide="calendar" style="width: 14px; height: 14px;"></i>
+                    {{ session.created_at|date:"M d, Y" }}
+                </span>
+                <span style="width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); opacity: 0.3;"></span>
+                <span style="font-size: 0.875rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.375rem;">
+                    <i data-lucide="clock" style="width: 14px; height: 14px;"></i>
+                    {{ session.created_at|date:"H:i" }}
+                </span>
+            </div>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem;">
+             <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.8125rem; font-weight: 800; background: rgba(99, 102, 241, 0.1); color: var(--accent-primary); border: 1px solid rgba(99, 102, 241, 0.2);">
+                <i data-lucide="activity" style="width: 14px; height: 14px;"></i>
+                {{ session.get_status_display|upper }}
+            </span>
+        </div>
+    </div>
+
+    {% if session.status == 'draft' %}
+    <div class="card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%); border-color: rgba(245, 158, 11, 0.3); text-align: center; padding: 4rem 2rem;">
+        <div style="background: rgba(245, 158, 11, 0.2); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--accent-warning);">
+            <i data-lucide="upload-cloud" style="width: 32px; height: 32px;"></i>
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Data Required</h3>
+        <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto 2rem;">This session is initialized but has no inventory assets. Upload your stock list to activate the scanner network.</p>
+        <a href="{% url 'supervisor:audit_upload' session.id %}" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1rem;">Upload Master Catalog</a>
+    </div>
+    {% endif %}
+
+    <div class="bento-grid" style="margin-bottom: 2rem;">
+        <div class="card span-6" style="text-align: center; background: radial-gradient(circle at center, rgba(34, 211, 238, 0.05) 0%, transparent 70%);">
+            <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">Access Token</p>
+            <p style="font-size: 3.5rem; font-weight: 900; letter-spacing: 0.2em; color: var(--accent-secondary); text-shadow: 0 0 30px rgba(34, 211, 238, 0.2);">{{ session_pin }}</p>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">Share this PIN with auditors arriving on site</p>
+        </div>
+        <div class="card span-6" style="text-align: center; display: flex; flex-direction: column; justify-content: center;">
+            <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">Asset Density</p>
+            <p style="font-size: 3.5rem; font-weight: 900; color: white;">{{ item_count }}</p>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">Items registered in current master list</p>
+        </div>
+    </div>
+
+<style>
+    @media (max-width: 768px) {
+        .qr-container {
+            flex-direction: column !important;
+            padding: 1.5rem !important;
+            gap: 2rem !important;
+            text-align: center;
+        }
+        .qr-container img {
+            width: 180px !important;
+            height: 180px !important;
+            margin: 0 auto;
+        }
+        .action-buttons {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+    {% if session.status == 'active' %}
+    <div class="card qr-container" style="display: flex; align-items: center; gap: 3rem; padding: 3rem;">
+        <div style="background: white; padding: 1.5rem; border-radius: 1.5rem; box-shadow: 0 20px 50px rgba(0,0,0,0.5); flex-shrink: 0;">
+            <img src="{{ qr_code }}" alt="Join QR Code" style="width: 220px; height: 220px; display: block;">
+        </div>
+        <div style="flex: 1;">
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem;">Rapid Deployment</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.7;">Auditors can scan this QR code with their mobile device to instantly join the session and start counting in their assigned zones.</p>
+            <div style="background: var(--bg-muted); padding: 1rem; border-radius: 0.75rem; border: 1px solid var(--border-glass); display: flex; align-items: center; gap: 0.75rem;">
+                <i data-lucide="link" style="width: 18px; height: 18px; color: var(--accent-secondary); flex-shrink: 0;"></i>
+                <code style="font-size: 0.75rem; color: var(--text-muted); word-break: break-all; opacity: 0.8;">{{ join_url }}</code>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2.5rem;">
+        <a href="{% url 'supervisor:monitor' session.id %}" class="btn btn-primary" style="height: 70px; font-size: 1.125rem; border-radius: 1.25rem;">
+            <i data-lucide="layout-dashboard" style="width: 24px; height: 24px;"></i>
+            Launch Live Monitor
+        </a>
+        <a href="{% url 'supervisor:variance' session.id %}" class="btn btn-secondary" style="height: 70px; font-size: 1.125rem; border-radius: 1.25rem;">
+            <i data-lucide="clipboard-list" style="width: 24px; height: 24px;"></i>
+            Variance Console
+        </a>
+    </div>
+    {% endif %}
+
+    {% if session.status != 'archived' %}
+    <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-glass); text-align: center;">
+        <form method="post" action="{% url 'supervisor:archive_session' session.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn" style="background: rgba(239, 68, 68, 0.1); color: var(--accent-error); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.75rem;" onclick="return confirm('Archive this session? This will terminate all active auditor links.')">
+                <i data-lucide="archive" style="width: 14px; height: 14px;"></i>
+                Archive Deployment
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

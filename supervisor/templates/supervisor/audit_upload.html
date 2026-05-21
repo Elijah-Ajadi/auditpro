@@ -1,0 +1,95 @@
+{% extends "base_supervisor.html" %}
+
+{% block title %}Upload Catalog - {{ session.name }}{% endblock %}
+
+{% block main %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div style="margin-bottom: 3rem;">
+        <a href="{% url 'supervisor:session_detail' session.id %}" style="color: var(--text-secondary); text-decoration: none; display: flex; align-items: center; gap: 0.25rem; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
+            <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+            Session Matrix
+        </a>
+        <h2 style="font-size: 1.875rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.5rem;">Catalog Ingestion</h2>
+        <p style="color: var(--text-secondary);">Upload your master stock list (CSV or Excel) to populate the scanner network.</p>
+    </div>
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 2.5rem; text-align: center; border-bottom: 1px solid var(--border-glass);">
+            <form method="post" enctype="multipart/form-data" id="upload-form">
+                {% csrf_token %}
+                <div id="drop-zone" style="border: 2px dashed rgba(99, 102, 241, 0.3); border-radius: 1.5rem; padding: 4rem 2rem; background: rgba(99, 102, 241, 0.02); transition: all 0.2s; cursor: pointer;">
+                    <i data-lucide="file-up" style="width: 48px; height: 48px; color: var(--accent-primary); margin-bottom: 1.5rem; opacity: 0.8;"></i>
+                    <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem;">Drop files or click to browse</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 2rem;">Supported formats: .csv, .xls, .xlsx</p>
+                    <input type="file" name="file" id="file-input" required style="display: none;">
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('file-input').click()">Select Asset File</button>
+                    <div id="file-name" style="margin-top: 1.5rem; font-weight: 700; color: var(--accent-success); display: none;"></div>
+                </div>
+                
+                <button type="submit" id="submit-btn" class="btn btn-primary" style="margin-top: 2.5rem; width: 100%; height: 60px; font-size: 1rem; border-radius: 1rem; display: none;">
+                    Initialize Processing Sequence
+                </button>
+            </form>
+        </div>
+
+        <div style="padding: 1.5rem 2.5rem; background: rgba(255,255,255,0.02);">
+            <h4 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="info" style="width: 14px; height: 14px;"></i>
+                Catalog Requirements
+            </h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.8125rem; color: var(--text-secondary);">
+                    <i data-lucide="check-circle-2" style="width: 14px; height: 14px; color: var(--accent-success);"></i>
+                    Universal Barcodes (GTIN/EAN)
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.8125rem; color: var(--text-secondary);">
+                    <i data-lucide="check-circle-2" style="width: 14px; height: 14px; color: var(--accent-success);"></i>
+                    Alpha-numeric Product Names
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.8125rem; color: var(--text-secondary);">
+                    <i data-lucide="check-circle-2" style="width: 14px; height: 14px; color: var(--accent-success);"></i>
+                    System Quantity (Optional)
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.8125rem; color: var(--text-secondary);">
+                    <i data-lucide="check-circle-2" style="width: 14px; height: 14px; color: var(--accent-success);"></i>
+                    Flexible Column Mapping
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('file-input');
+    const fileName = document.getElementById('file-name');
+    const submitBtn = document.getElementById('submit-btn');
+    const dropZone = document.getElementById('drop-zone');
+
+    fileInput.onchange = (e) => {
+        if(fileInput.files.length > 0) {
+            fileName.textContent = `SELECTED: ${fileInput.files[0].name}`;
+            fileName.style.display = 'block';
+            submitBtn.style.display = 'flex';
+            dropZone.style.borderColor = 'var(--accent-success)';
+            dropZone.style.background = 'rgba(16, 185, 129, 0.05)';
+        }
+    };
+
+    dropZone.ondragover = (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = 'var(--accent-primary)';
+        dropZone.style.background = 'rgba(99, 102, 241, 0.1)';
+    };
+
+    dropZone.ondragleave = (e) => {
+        dropZone.style.borderColor = 'rgba(99, 102, 241, 0.3)';
+        dropZone.style.background = 'rgba(99, 102, 241, 0.02)';
+    };
+
+    dropZone.ondrop = (e) => {
+        e.preventDefault();
+        fileInput.files = e.dataTransfer.files;
+        fileInput.onchange();
+    };
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base_supervisor.html" %}
+
+{% block title %}Live Monitor - {{ session.name }}{% endblock %}
+
+{% block main %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h2 style="font-size: 1.5rem; font-weight: 700;">Live Monitor</h2>
+        <p style="color: var(--text-muted);">{{ session.name }}</p>
+    </div>
+    <a href="{% url 'supervisor:session_detail' session.id %}" class="btn btn-secondary">Back to Session</a>
+</div>
+
+<div id="monitor-live-container"
+     hx-get="{% url 'supervisor:monitor_refresh' session.id %}"
+     hx-trigger="every 5s"
+     hx-target="#monitor-live-container"
+     hx-swap="innerHTML">
+    {% include 'supervisor/partials/monitor_full.html' %}
+</div>
+{% endblock %}

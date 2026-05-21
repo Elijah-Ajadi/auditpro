@@ -1,0 +1,169 @@
+<!-- Summary Grid -->
+<div class="bento-grid" style="margin-bottom: 2rem;">
+    <div class="card span-4" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%); border-color: rgba(99, 102, 241, 0.2);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="background: var(--accent-primary); padding: 0.75rem; border-radius: 1rem; color: white;">
+                <i data-lucide="package" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div>
+                <p style="color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Total Catalog</p>
+                <p style="font-size: 1.75rem; font-weight: 800;">{{ total_items }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card span-4" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%); border-color: rgba(6, 182, 212, 0.2);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="background: var(--accent-secondary); padding: 0.75rem; border-radius: 1rem; color: white;">
+                <i data-lucide="scan" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div>
+                <p style="color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Unique Scanned</p>
+                <p style="font-size: 1.75rem; font-weight: 800; color: var(--accent-secondary);">{{ unique_items_scanned }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card span-4" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%); border-color: rgba(16, 185, 129, 0.2);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="background: var(--accent-success); padding: 0.75rem; border-radius: 1rem; color: white;">
+                <i data-lucide="pie-chart" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div>
+                <p style="color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Audit Progress</p>
+                <p style="font-size: 1.75rem; font-weight: 800;">{{ progress }}%</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bento-grid">
+    <!-- Active Auditors -->
+    <div class="card span-12" style="padding: 0; overflow: hidden;">
+        <div style="padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.02);">
+            <h3 class="card-title" style="margin-bottom: 0;">
+                <i data-lucide="users" style="width: 20px; height: 20px; color: var(--accent-primary);"></i>
+                Active Auditor Network
+            </h3>
+        </div>
+        
+        {% if auditors %}
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Identity</th>
+                        <th>Current Zone</th>
+                        <th>Total Volume</th>
+                        <th>Coverage</th>
+                        <th>Last Sync</th>
+                        <th>Telemetry</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in auditors %}
+                    <tr>
+                        <td data-label="Identity" style="font-weight: 700;">{{ a.nickname|default:"Anonymous" }}</td>
+                        <td data-label="Current Zone">
+                            <span style="background: var(--bg-muted); color: var(--text-primary); padding: 0.25rem 0.625rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 700; border: 1px solid var(--border-glass);">
+                                {{ a.zone }}
+                            </span>
+                        </td>
+                        <td data-label="Total Volume" style="font-weight: 800; color: var(--accent-secondary);">{{ a.total_scans }}</td>
+                        <td data-label="Coverage">{{ a.zones_covered }} zones</td>
+                        <td data-label="Last Sync" style="color: var(--text-secondary); font-size: 0.8125rem;">
+                            {% if a.last_activity %}
+                                {{ a.last_activity|timesince }} ago
+                            {% else %}
+                                <span style="color: var(--text-muted);">Inert</span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Telemetry">
+                            {% if a.is_online %}
+                                <span style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent-success); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">
+                                    <span style="width: 10px; height: 10px; background: var(--accent-success); border-radius: 50%; box-shadow: 0 0 12px var(--accent-success);"></span>
+                                    Linked
+                                </span>
+                            {% else %}
+                                <span style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">
+                                    <span style="width: 10px; height: 10px; background: var(--text-muted); border-radius: 50%;"></span>
+                                    Standby
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="padding: 4rem; text-align: center; color: var(--text-muted);">
+            <i data-lucide="wifi-off" style="width: 32px; height: 32px; margin-bottom: 1rem; opacity: 0.5;"></i>
+            <p style="font-weight: 500;">Waiting for auditor connections...</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Live Activity Feed -->
+    <div class="card span-12" style="padding: 0; overflow: hidden;">
+        <div style="padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.02); display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="card-title" style="margin-bottom: 0;">
+                <i data-lucide="activity" style="width: 20px; height: 20px; color: var(--accent-secondary);"></i>
+                Real-time Data Stream
+            </h3>
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Latest 50 Entries</span>
+        </div>
+
+        {% if recent_activity %}
+        <div style="max-height: 500px; overflow-y: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product Asset</th>
+                        <th>Barcode</th>
+                        <th>Delta</th>
+                        <th>Expected</th>
+                        <th>Agent</th>
+                        <th style="text-align: right;">Temporal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recent_activity %}
+                    <tr style="{% if item.is_unlisted %}background: rgba(99, 102, 241, 0.05);{% endif %}">
+                        <td data-label="Product Asset">
+                            <div style="font-weight: 700; color: {% if item.is_unlisted %}var(--accent-primary){% else %}white{% endif %};">
+                                {{ item.product_name }}
+                            </div>
+                            {% if item.is_unlisted %}
+                            <span style="font-size: 0.625rem; background: var(--accent-primary); color: white; padding: 0.125rem 0.375rem; border-radius: 0.25rem; text-transform: uppercase; font-weight: 800;">Unlisted</span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Barcode"><code style="font-size: 0.75rem; color: var(--accent-secondary); opacity: 0.8;">{{ item.barcode }}</code></td>
+                        <td data-label="Delta" style="font-weight: 800; font-size: 1rem; color: var(--accent-secondary);">+{{ item.quantity_recorded }}</td>
+                        <td data-label="Expected" style="color: var(--text-muted);">
+                            {% if item.expected_quantity is not None %}
+                            {{ item.expected_quantity }}
+                            {% else %}
+                            <span style="opacity: 0.3;">—</span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Agent" style="font-weight: 600;">{{ item.auditor }}</td>
+                        <td data-label="Temporal" style="text-align: right; color: var(--text-muted); font-size: 0.8125rem;">
+                            {{ item.timestamp|timesince }} ago
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="padding: 4rem; text-align: center; color: var(--text-muted);">
+            <p>Stream idle. Initializing data listening...</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    if (window.lucide) lucide.createIcons();
+</script>

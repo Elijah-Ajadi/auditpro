@@ -1,0 +1,121 @@
+{% extends "base_auditor.html" %}
+
+{% block title %}Loading Catalog{% endblock %}
+
+{% block main %}
+<div id="hydrate-overlay" class="overlay-lock">
+    <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Loading Catalog</h2>
+    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">Downloading items for offline use...</p>
+    <p id="progress-text" style="color: var(--action-teal); font-size: 1.5rem; font-weight: 700;">0%</p>
+    <div class="progress-bar-container">
+        <div id="progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+    </div>
+    <p id="status-text" style="color: var(--text-muted); font-size: 0.75rem; margin-top: 1rem;">Connecting...</p>
+</div>
+
+<script>
+const sessionId = '{{ session_id }}';
+const progressFill = document.getElementById('progress-fill');
+const progressText = document.getElementById('progress-text');
+const statusText = document.getElementById('status-text');
+const overlay = document.getElementById('hydrate-overlay');
+
+function updateProgress(percent, status) {
+    progressFill.style.width = percent + '%';
+    progressText.textContent = Math.round(percent) + '%';
+    if (status) statusText.textContent = status;
+}
+
+async function hydrateCatalog() {
+    try {
+        updateProgress(10, 'Fetching catalog...');
+
+        const response = await fetch('{% url "auditor:catalog_json" %}');
+        if (!response.ok) throw new Error('Failed to fetch catalog');
+
+        const data = await response.json();
+        updateProgress(50, 'Processing ' + data.length + ' items...');
+
+        await storeInIndexedDB(data);
+
+        updateProgress(100, 'Ready!');
+
+        setTimeout(() => {
+            window.location.href = '{% url "auditor:scan" %}';
+        }, 500);
+
+    } catch (error) {
+        statusText.textContent = 'Error: ' + error.message;
+        statusText.style.color = 'var(--error-red)';
+        setTimeout(() => {
+            window.location.href = '{% url "auditor:join" %}';
+        }, 3000);
+    }
+}
+
+async function storeInIndexedDB(catalog) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('AuditProDB', 1);
+
+        request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('catalog')) {
+                const store = db.createObjectStore('catalog', { keyPath: 'b' });
+                store.createIndex('name', 'n', { unique: false });
+            }
+            if (!db.objectStoreNames.contains('logs')) {
+                const logStore = db.createObjectStore('logs', { keyPath: 'id' });
+                logStore.createIndex('synced', 'synced', { unique: false });
+                logStore.createIndex('barcode', 'barcode', { unique: false });
+            }
+            if (!db.objectStoreNames.contains('session')) {
+                db.createObjectStore('session');
+            }
+        };
+
+        request.onsuccess = (e) => {
+            const db = e.target.result;
+            const tx = db.transaction(['catalog', 'session', 'logs'], 'readwrite');
+            const catalogStore = tx.objectStore('catalog');
+            const sessionStore = tx.objectStore('session');
+            const logsStore = tx.objectStore('logs');
+
+            // Clear existing data for a clean session start
+            catalogStore.clear();
+            sessionStore.clear();
+            
+            // Note: We don't necessarily want to clear 'logs' here 
+            // if there are unsynced logs from BEFORE. 
+            // Better to check if session_id has changed.
+            const sessionCheck = sessionStore.get('session_id');
+            sessionCheck.onsuccess = () => {
+                if (sessionCheck.result && sessionCheck.result !== sessionId) {
+                    console.log('New session detected, clearing old logs.');
+                    // Only clear synced logs? Or all logs? 
+                    // To be safe and avoid data loss, we should only clear logs 
+                    // if they are confirmed synced OR if the user explicitly wants a fresh start.
+                    // For now, let's just clear the catalog and update session_id.
+                }
+                sessionStore.put(sessionId, 'session_id');
+            };
+
+            let processed = 0;
+            const total = catalog.length;
+
+            catalog.forEach((item) => {
+                catalogStore.put(item);
+                processed++;
+                updateProgress(50 + (processed / total) * 40, `Stored ${processed}/${total} items...`);
+            });
+
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(new Error('Failed to store catalog'));
+        };
+
+        request.onerror = () => reject(new Error('IndexedDB not available'));
+    });
+}
+
+hydrateCatalog();
+</script>
+{% endblock %}

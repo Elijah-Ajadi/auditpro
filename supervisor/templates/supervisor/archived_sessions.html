@@ -1,0 +1,70 @@
+{% extends "base_supervisor.html" %}
+
+{% block title %}Session Archives - Audit Pro{% endblock %}
+
+{% block main %}
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem;">
+    <div>
+        <h2 style="font-size: 1.875rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.5rem;">Session Archives</h2>
+        <p style="color: var(--text-secondary);">Access data from completed or decommissioned audits.</p>
+    </div>
+    <a href="{% url 'supervisor:dashboard' %}" class="btn btn-secondary">
+        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+        Active Hub
+    </a>
+</div>
+
+{% if sessions %}
+<div class="card" style="padding: 0; overflow: hidden;">
+    <table>
+        <thead>
+            <tr>
+                <th>Historical Identity</th>
+                <th>Access PIN</th>
+                <th>Data Density</th>
+                <th>Archival Date</th>
+                <th style="text-align: right;">Retrieval</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in sessions %}
+            <tr>
+                <td>
+                    <div style="font-weight: 700; color: white;">{{ s.name }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ s.id|truncatechars:12 }}</div>
+                </td>
+                <td>
+                   <code style="background: var(--bg-muted); color: var(--text-muted); font-family: monospace; font-size: 0.875rem; font-weight: 700; padding: 0.25rem 0.625rem; border-radius: 0.5rem; border: 1px solid var(--border-glass);">
+                        {{ s.session_pin }}
+                    </code>
+                </td>
+                <td style="color: var(--text-secondary);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i data-lucide="database" style="width: 14px; height: 14px; opacity: 0.5;"></i>
+                        {{ s.log_entries.count }} Logs
+                    </div>
+                </td>
+                <td style="color: var(--text-muted); font-size: 0.8125rem;">
+                    {{ s.created_at|date:"F d, Y" }}
+                </td>
+                <td style="text-align: right;">
+                    <a href="{% url 'supervisor:session_detail' s.id %}" class="btn btn-secondary" style="padding: 0.5rem 1rem;">
+                        <i data-lucide="file-text" style="width: 16px; height: 16px;"></i>
+                        Extract
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 5rem 2rem;">
+    <div style="background: var(--bg-muted); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; opacity: 0.5;">
+        <i data-lucide="archive" style="width: 32px; height: 32px; color: var(--text-muted);"></i>
+    </div>
+    <h3 style="font-weight: 700; margin-bottom: 0.5rem;">Archive empty</h3>
+    <p style="color: var(--text-muted);">No sessions have been decommissioned yet.</p>
+</div>
+{% endif %}
+{% endblock %}

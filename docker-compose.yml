@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: auditpro
+      POSTGRES_USER: auditpro
+      POSTGRES_PASSWORD: auditpro
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://auditpro:auditpro@db:5432/auditpro
+      DEBUG: "True"
+      SECRET_KEY: dev-secret-key-change-in-production
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

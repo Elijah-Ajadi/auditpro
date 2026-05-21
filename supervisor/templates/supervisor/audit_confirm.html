@@ -1,0 +1,23 @@
+{% extends "base_supervisor.html" %}
+
+{% block title %}Confirm Import - {{ session.name }}{% endblock %}
+
+{% block main %}
+<div style="max-width: 800px; margin: 2rem auto;">
+    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">Confirm Import</h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">{{ item_count }} items ready to import into <strong>{{ session.name }}</strong></p>
+
+    <div class="card">
+        <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Preview (first 5 items)</h3>
+        <pre style="background: var(--bg-tertiary); padding: 1rem; border-radius: 0.5rem; font-size: 0.875rem; overflow-x: auto;">{{ preview }}</pre>
+    </div>
+
+    <form method="post" action="{% url 'supervisor:confirm_import' session.id %}" style="margin-top: 1.5rem;">
+        {% csrf_token %}
+        <div style="display: flex; gap: 1rem;">
+            <a href="{% url 'supervisor:audit_upload' session.id %}" class="btn btn-secondary" style="flex: 1;">Cancel</a>
+            <button type="submit" class="btn btn-primary" style="flex: 2;">Confirm & Import {{ item_count }} Items</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

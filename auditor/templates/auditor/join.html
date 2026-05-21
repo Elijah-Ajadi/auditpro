@@ -1,0 +1,37 @@
+{% extends "base_auditor.html" %}
+
+{% block title %}Join Audit Session{% endblock %}
+
+{% block main %}
+<div style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 1.5rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--action-teal); margin-bottom: 0.5rem;">Audit Pro</h1>
+        <p style="color: var(--text-secondary); font-size: 0.875rem;">Enter session details to begin</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div style="padding: 0.75rem 1rem; margin-bottom: 1rem; border-radius: 0.5rem; background: rgba(239, 68, 68, 0.1); color: var(--error-red); border: 1px solid rgba(239, 68, 68, 0.3); text-align: center;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" action="{% url 'auditor:authenticate' %}" style="display: flex; flex-direction: column; gap: 1rem;">
+        {% csrf_token %}
+        <div>
+            <label for="session_pin" style="display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.375rem; text-transform: uppercase; letter-spacing: 0.05em;">Session PIN</label>
+            <input type="text" id="session_pin" name="session_pin" placeholder="e.g. A1B2C" value="{{ prefilled_pin|default:'' }}" maxlength="5" class="input-field" style="text-transform: uppercase; text-align: center; letter-spacing: 0.25em; font-size: 1.5rem; font-weight: 700;" required>
+        </div>
+        <div>
+            <label for="nickname" style="display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.375rem; text-transform: uppercase; letter-spacing: 0.05em;">Your Name</label>
+            <input type="text" id="nickname" name="nickname" placeholder="e.g. John" class="input-field" required>
+        </div>
+        <div>
+            <label for="zone" style="display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.375rem; text-transform: uppercase; letter-spacing: 0.05em;">Aisle / Zone</label>
+            <input type="text" id="zone" name="zone" placeholder="e.g. A3" class="input-field" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-large" style="margin-top: 1rem;">Join Session</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base_supervisor.html" %}
+
+{% block title %}Variance Console - {{ session.name }}{% endblock %}
+
+{% block main %}
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem;">
+    <div>
+        <h2 style="font-size: 1.875rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.5rem;">Variance Analytics</h2>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <p style="color: var(--text-secondary); font-size: 0.875rem;">{{ session.name }}</p>
+            <span style="width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); opacity: 0.3;"></span>
+            <p style="color: var(--accent-error); font-size: 0.875rem; font-weight: 700;">{{ total_discrepancies }} Discrepancies Found</p>
+        </div>
+    </div>
+    <a href="{% url 'supervisor:session_detail' session.id %}" class="btn btn-secondary">
+        <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+        Exit Console
+    </a>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden; margin-bottom: 2.5rem;">
+    <div style="padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.02); display: flex; justify-content: space-between; align-items: center;">
+        <h3 class="card-title" style="margin-bottom: 0;">
+            <i data-lucide="bar-chart-3" style="width: 20px; height: 20px; color: var(--accent-primary);"></i>
+            Inventory Reconciliation
+        </h3>
+        <div style="display: flex; gap: 0.5rem;">
+            <span style="font-size: 0.625rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 0.375rem; background: var(--bg-muted); padding: 0.25rem 0.625rem; border-radius: 0.5rem;">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent-warning);"></span>
+                Under
+            </span>
+            <span style="font-size: 0.625rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 0.375rem; background: var(--bg-muted); padding: 0.25rem 0.625rem; border-radius: 0.5rem;">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent-secondary);"></span>
+                Over
+            </span>
+        </div>
+    </div>
+    
+    {% if variance_data %}
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Model</th>
+                    <th>Barcode</th>
+                    <th>System Qty</th>
+                    <th>Physical Qty</th>
+                    <th>Variance Delta</th>
+                    <th style="text-align: right;">System Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in variance_data %}
+                <tr style="{% if v.variance < 0 %}background: rgba(245, 158, 11, 0.03);{% elif v.variance > 0 %}background: rgba(6, 182, 212, 0.03);{% endif %}">
+                    <td data-label="Product Model">
+                        <div style="font-weight: 700; color: white;">{{ v.product_name }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Master Catalog Asset</div>
+                    </td>
+                    <td data-label="Barcode"><code style="font-size: 0.8125rem; color: var(--accent-secondary); opacity: 0.7;">{{ v.barcode }}</code></td>
+                    <td data-label="System Qty" style="color: var(--text-secondary);">{{ v.expected }}</td>
+                    <td data-label="Physical Qty" style="font-weight: 800; font-size: 1.125rem; color: white;">{{ v.actual }}</td>
+                    <td data-label="Variance Delta" style="font-weight: 800;">
+                        {% if v.variance == 0 %}
+                            <span style="color: var(--text-muted); opacity: 0.3;">0</span>
+                        {% elif v.variance < 0 %}
+                            <span style="color: var(--accent-warning); background: rgba(245, 158, 11, 0.1); padding: 0.25rem 0.5rem; border-radius: 0.5rem;">{{ v.variance }}</span>
+                        {% else %}
+                            <span style="color: var(--accent-secondary); background: rgba(6, 182, 212, 0.1); padding: 0.25rem 0.5rem; border-radius: 0.5rem;">+{{ v.variance }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                        {% if v.variance != 0 %}
+                        <form method="post" action="{% url 'supervisor:trigger_recount' session.id v.barcode %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.025em; text-transform: uppercase;">
+                                <i data-lucide="rotate-ccw" style="width: 14px; height: 14px; margin-right: 0.375rem;"></i>
+                                Recount
+                            </button>
+                        </form>
+                        {% else %}
+                        <span style="color: var(--accent-success); font-size: 0.75rem; font-weight: 800;">
+                            <i data-lucide="check" style="width: 14px; height: 14px; display: inline-block; vertical-align: text-bottom;"></i>
+                            RECONCILED
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="padding: 4rem; text-align: center; color: var(--text-muted);">
+        <i data-lucide="database" style="width: 48px; height: 48px; opacity: 0.1; margin-bottom: 1rem;"></i>
+        <p>No catalog synchronization detected.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% if unlisted_items %}
+<div class="card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--border-glass); background: rgba(99, 102, 241, 0.05);">
+        <h3 class="card-title" style="margin-bottom: 0;">
+            <i data-lucide="package-plus" style="width: 20px; height: 20px; color: var(--accent-primary);"></i>
+            Anomalous Assets (Unlisted)
+        </h3>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Item Identity</th>
+                <th>Aggregated Quantity</th>
+                <th style="text-align: right;">Entry Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in unlisted_items %}
+            <tr style="background: rgba(99, 102, 241, 0.02);">
+                <td style="font-weight: 700; color: var(--accent-primary);">{{ item.unlisted_label|upper }}</td>
+                <td style="font-weight: 900; font-size: 1.125rem; color: white;">{{ item.total }}</td>
+                <td style="text-align: right; color: var(--text-muted);">{{ item.count }} separate logs</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

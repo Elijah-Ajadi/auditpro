@@ -1,0 +1,39 @@
+{% extends "base_supervisor.html" %}
+
+{% block title %}Initialize Session - Audit Pro{% endblock %}
+
+{% block main %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <div style="margin-bottom: 3rem; text-align: center;">
+        <div style="background: rgba(99, 102, 241, 0.1); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--accent-primary);">
+            <i data-lucide="plus-circle" style="width: 32px; height: 32px;"></i>
+        </div>
+        <h2 style="font-size: 1.875rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.5rem;">Initialize Audit</h2>
+        <p style="color: var(--text-secondary);">Define the workspace for your inventory session.</p>
+    </div>
+
+    <form method="post" class="card" style="padding: 2.5rem;">
+        {% csrf_token %}
+        <div style="margin-bottom: 2rem;">
+            <label for="name" style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.75rem;">Session Identity</label>
+            <input type="text" name="name" id="name" required placeholder="e.g., Q2 Retail Audit - Main Branch" 
+                style="width: 100%; padding: 1rem 1.25rem; background: rgba(255,255,255,0.03); border: 2px solid var(--border-glass); border-radius: 1rem; color: white; font-size: 1rem; font-weight: 600; outline: none; transition: border-color 0.2s;">
+            <p style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-muted);">This name will be visible to all auditors joining this session.</p>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 3rem;">
+            <a href="{% url 'supervisor:dashboard' %}" class="btn btn-secondary" style="flex: 1;">Cancel</a>
+            <button type="submit" class="btn btn-primary" style="flex: 2;">
+                Generate Session Securely
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    input:focus {
+        border-color: var(--accent-primary) !important;
+        background: rgba(255,255,255,0.05) !important;
+    }
+</style>
+{% endblock %}
