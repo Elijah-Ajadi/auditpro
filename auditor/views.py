@@ -26,9 +26,8 @@ def join_with_pin(request, session_pin):
 def authenticate(request):
     session_pin = request.POST.get('session_pin', '').strip().upper()
     nickname = request.POST.get('nickname', '').strip()
-    zone = request.POST.get('zone', '').strip()
 
-    if not session_pin or not nickname or not zone:
+    if not session_pin or not nickname:
         messages.error(request, 'All fields are required.')
         return redirect('auditor:join')
 
@@ -41,13 +40,11 @@ def authenticate(request):
     auditor = AuditorSession.objects.create(
         session=audit_session,
         nickname=nickname,
-        zone=zone,
     )
 
     request.session['auditor_id'] = str(auditor.id)
     request.session['session_id'] = str(audit_session.id)
     request.session['nickname'] = nickname
-    request.session['zone'] = zone
 
     return redirect('auditor:hydrate')
 
@@ -66,7 +63,6 @@ def scan(request):
 
     return render(request, 'auditor/scan.html', {
         'nickname': request.session.get('nickname', 'Auditor'),
-        'zone': request.session.get('zone', ''),
         'session_id': request.session.get('session_id', ''),
     })
 

@@ -52,13 +52,12 @@ def export_audit_trail_csv(request, session_id):
     response['Content-Disposition'] = f'attachment; filename="AuditTrail_{session.name}_{sid}.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['Timestamp', 'Auditor', 'Zone', 'Barcode', 'Product', 'Qty Recorded', 'Is Unlisted'])
+    writer.writerow(['Timestamp', 'Auditor', 'Barcode', 'Product', 'Qty Recorded', 'Is Unlisted'])
 
     for log in activity:
         writer.writerow([
             log['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),
             log['auditor'],
-            log['zone'],
             log['barcode'],
             log['product_name'],
             log['delta'],

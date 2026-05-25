@@ -19,14 +19,14 @@ class CatalogItemAdmin(admin.ModelAdmin):
 
 @admin.register(AuditLogEntry)
 class AuditLogEntryAdmin(admin.ModelAdmin):
-    list_display = ['barcode', 'delta', 'auditor_id', 'zone', 'timestamp', 'synced', 'is_unlisted']
-    list_filter = ['synced', 'is_unlisted', 'session', 'zone']
+    list_display = ['barcode', 'delta', 'auditor_id', 'timestamp', 'synced', 'is_unlisted']
+    list_filter = ['synced', 'is_unlisted', 'session']
     search_fields = ['barcode', 'auditor_id']
     readonly_fields = ['id', 'created_at']
 
 
 @admin.register(AuditorSession)
 class AuditorSessionAdmin(admin.ModelAdmin):
-    list_display = ['nickname', 'zone', 'session', 'joined_at', 'last_active', 'is_online']
+    list_display = ['nickname', 'session', 'joined_at', 'last_active', 'is_online']
     list_filter = ['session', 'is_online']
-    search_fields = ['nickname', 'zone']
+    search_fields = ['nickname']

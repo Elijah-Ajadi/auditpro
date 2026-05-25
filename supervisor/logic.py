@@ -78,7 +78,6 @@ def get_session_activity_data(session):
             'barcode': entry.barcode,
             'delta': entry.delta,
             'auditor': entry.auditor_id,
-            'zone': entry.zone,
             'timestamp': entry.timestamp,
             'is_unlisted': entry.is_unlisted,
         })

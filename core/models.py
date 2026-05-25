@@ -56,7 +56,6 @@ class AuditLogEntry(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     session = models.ForeignKey(AuditSession, on_delete=models.CASCADE, related_name='log_entries')
     auditor_id = models.CharField(max_length=64, db_index=True)
-    zone = models.CharField(max_length=64, db_index=True)
     barcode = models.CharField(max_length=64, db_index=True)
     delta = models.IntegerField()
     timestamp = models.DateTimeField(db_index=True)
@@ -70,7 +69,6 @@ class AuditLogEntry(models.Model):
         indexes = [
             models.Index(fields=['session', 'barcode']),
             models.Index(fields=['session', 'auditor_id']),
-            models.Index(fields=['session', 'zone']),
             models.Index(fields=['synced']),
         ]
 
@@ -82,7 +80,6 @@ class AuditorSession(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     session = models.ForeignKey(AuditSession, on_delete=models.CASCADE, related_name='auditor_sessions')
     nickname = models.CharField(max_length=100)
-    zone = models.CharField(max_length=64)
     joined_at = models.DateTimeField(auto_now_add=True)
     last_active = models.DateTimeField(auto_now=True)
     is_online = models.BooleanField(default=True)
@@ -91,7 +88,7 @@ class AuditorSession(models.Model):
         ordering = ['-joined_at']
 
     def __str__(self):
-        return f'{self.nickname} in {self.zone}'
+        return f'{self.nickname}'
 
 
 class RecountTask(models.Model):

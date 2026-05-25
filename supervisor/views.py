@@ -184,8 +184,7 @@ def monitor_refresh(request, session_id):
     # Multi-auditor stats in one query
     log_stats_qs = AuditLogEntry.objects.filter(session=session).values('auditor_id').annotate(
         total_scans=Count('id'),
-        last_activity=Max('timestamp'),
-        zones_covered=Count('zone', distinct=True)
+        last_activity=Max('timestamp')
     )
     stats_map = {item['auditor_id']: item for item in log_stats_qs}
 
@@ -196,10 +195,8 @@ def monitor_refresh(request, session_id):
 
         auditor_stats.append({
             'nickname': auditor.nickname,
-            'zone': auditor.zone,
             'total_scans': stats.get('total_scans', 0),
             'last_activity': stats.get('last_activity'),
-            'zones_covered': stats.get('zones_covered', 0),
             'is_online': is_online,
             'joined_at': auditor.joined_at,
         })

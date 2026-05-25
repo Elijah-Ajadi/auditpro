@@ -37,7 +37,6 @@ def sync_endpoint(request):
                 defaults={
                     'session': session,
                     'auditor_id': log.get('auditor_id', ''),
-                    'zone': log.get('zone', ''),
                     'barcode': log.get('barcode', ''),
                     'delta': int(log.get('delta', 0)),
                     'timestamp': log.get('timestamp'),

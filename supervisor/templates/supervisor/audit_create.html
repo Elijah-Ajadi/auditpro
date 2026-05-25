@@ -8,8 +8,8 @@
         <div style="background: rgba(99, 102, 241, 0.1); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--accent-primary);">
             <i data-lucide="plus-circle" style="width: 32px; height: 32px;"></i>
         </div>
-        <h2 style="font-size: 1.875rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.5rem;">Initialize Audit</h2>
-        <p style="color: var(--text-secondary);">Define the workspace for your inventory session.</p>
+        <h2 style="font-size: 1.875rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.5rem;">Create Audit Session</h2>
+        <p style="color: var(--text-secondary);">Define the workspace for your audit session.</p>
     </div>
 
     <form method="post" class="card" style="padding: 2.5rem;">
@@ -24,7 +24,7 @@
         <div style="display: flex; gap: 1rem; margin-top: 3rem;">
             <a href="{% url 'supervisor:dashboard' %}" class="btn btn-secondary" style="flex: 1;">Cancel</a>
             <button type="submit" class="btn btn-primary" style="flex: 2;">
-                Generate Session Securely
+                Start Session
             </button>
         </div>
     </form>
