@@ -31,13 +31,8 @@
 
 <div class="auditor-content" id="scan-content">
     <!-- Active Item Reveal -->
-    <div id="product-display" style="padding: 2.5rem 1.25rem; min-height: 140px; display: flex; flex-direction: column; justify-content: center; background: radial-gradient(circle at center, rgba(34, 211, 238, 0.05) 0%, transparent 70%);">
-        <div id="idle-message" style="text-align: center;">
-            <div style="width: 48px; height: 48px; background: var(--bg-muted); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; border: 1px solid var(--border-glass);">
-                <i data-lucide="barcode" style="width: 24px; height: 24px; color: var(--text-muted);"></i>
-            </div>
-            <p style="color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">Ready for capture</p>
-        </div>
+    <div id="product-display" style="padding: 1.5rem 1.25rem; min-height: 80px; display: flex; flex-direction: column; justify-content: center; background: radial-gradient(circle at center, rgba(34, 211, 238, 0.05) 0%, transparent 70%);">
+        <!-- selected-product injected here -->
         
         <div id="selected-product" style="display: none; animation: slideUp 0.3s ease-out;">
             <p id="selected-name" style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.02em; line-height: 1.2;"></p>
@@ -75,30 +70,26 @@
 
 <!-- Premium Tactical Control Zone -->
 <div class="thumb-zone">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-        <button id="btn-scan-mode" class="btn btn-primary" style="height: 54px; font-size: 0.9375rem;">
-            <i data-lucide="camera" style="width: 18px; height: 18px; margin-right: 0.5rem;"></i>
-            Camera Scan
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 0.75rem;">
+        <button id="btn-save" class="btn btn-primary" disabled style="height: 52px; font-size: 0.8125rem; opacity: 0.4; filter: grayscale(1);">
+            <i data-lucide="check-circle" style="width: 18px; height: 18px; margin-right: 0.5rem;"></i>
+            Authenticate
         </button>
-        <button id="btn-search-mode" class="btn btn-secondary" style="height: 54px; font-size: 0.9375rem;">
+        <button id="btn-search-mode" class="btn btn-secondary" style="height: 52px; font-size: 0.8125rem;">
             <i data-lucide="search" style="width: 18px; height: 18px; margin-right: 0.5rem;"></i>
             Search
         </button>
     </div>
 
-    <!-- Glassmorphic Numpad -->
+    <!-- Modern Compact Numpad -->
     <div id="numpad" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.625rem;">
-        {% for d in "123456789"|make_list %}<button class="numpad-btn btn btn-secondary" data-digit="{{ d }}" style="font-size: 1.5rem; height: 60px; background: rgba(255,255,255,0.03);">{{ d }}</button>{% endfor %}
-        <button class="numpad-btn btn btn-secondary" data-digit="clear" style="font-size: 0.75rem; height: 60px; color: var(--accent-error); font-weight: 800;">CLEAR</button>
-        <button class="numpad-btn btn btn-secondary" data-digit="0" style="font-size: 1.5rem; height: 60px; background: rgba(255,255,255,0.03);">0</button>
-        <button class="numpad-btn btn btn-secondary" data-digit="back" style="font-size: 1.25rem; height: 60px;"><i data-lucide="delete" style="width: 24px; height: 24px;"></i></button>
+        {% for d in "123456789"|make_list %}
+        <button class="numpad-btn btn btn-secondary" data-digit="{{ d }}" style="font-size: 1.25rem; height: 48px; background: rgba(255,255,255,0.03); border-radius: 0.75rem;">{{ d }}</button>
+        {% endfor %}
+        <button class="numpad-btn btn btn-secondary" data-digit="clear" style="font-size: 0.65rem; height: 48px; color: var(--accent-error); font-weight: 800; border-radius: 0.75rem;">CLR</button>
+        <button class="numpad-btn btn btn-secondary" data-digit="0" style="font-size: 1.25rem; height: 48px; background: rgba(255,255,255,0.03); border-radius: 0.75rem;">0</button>
+        <button class="numpad-btn btn btn-secondary" data-digit="back" style="font-size: 1rem; height: 48px; border-radius: 0.75rem;"><i data-lucide="delete" style="width: 18px; height: 18px;"></i></button>
     </div>
-
-    <!-- Massive Save Action -->
-    <button id="btn-save" class="btn btn-primary btn-large" disabled style="height: 70px; opacity: 0.4; filter: grayscale(1); margin-bottom: 0.5rem;">
-        <i data-lucide="check-circle" style="width: 24px; height: 24px; margin-right: 0.75rem;"></i>
-        Authenticate Count
-    </button>
     
     <div style="display: flex; gap: 0.75rem;">
         <button id="btn-unlisted" style="flex: 1; background: var(--bg-muted); border: 1px solid var(--border-glass); color: var(--text-muted); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; padding: 0.5rem; border-radius: 0.75rem;">
@@ -127,6 +118,39 @@
         <div id="search-empty" style="text-align: center; color: var(--text-muted); padding: 3rem;">
             <i data-lucide="search" style="width: 48px; height: 48px; opacity: 0.2; margin-bottom: 1rem;"></i>
             <p>Query the master repository...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Unlisted Mode Modal -->
+<div id="unlisted-modal" style="display: none; position: fixed; inset: 0; background: var(--bg-deep); z-index: 250; overflow-y: auto; padding-bottom: 2rem;">
+    <div style="position: sticky; top: 0; background: var(--bg-glass); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); padding: 1.25rem; border-bottom: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center; z-index: 10;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--accent-warning);">Unlisted Asset Capture</h2>
+        <button id="close-unlisted" style="background: var(--bg-muted); border: none; color: white; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i data-lucide="x"></i></button>
+    </div>
+    <div style="padding: 1.5rem;">
+        <p style="color: var(--text-secondary); font-size: 0.8125rem; margin-bottom: 2rem;">Record items found on floor that are missing from the master repository.</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div>
+                <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.75rem;">Barcode / Identity</label>
+                <input type="text" id="unlisted-barcode" class="input-field" placeholder="Scan or type barcode...">
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.75rem;">Product Label / Name</label>
+                <input type="text" id="unlisted-name" class="input-field" placeholder="e.g. Unknown Blue Shirt XL">
+            </div>
+
+            <div>
+                <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.75rem;">Actual Quantity Found</label>
+                <input type="number" id="unlisted-qty" class="input-field" placeholder="0" inputmode="numeric">
+            </div>
+
+            <button id="btn-save-unlisted" class="btn btn-primary btn-large" style="margin-top: 1.5rem; background: var(--accent-warning); color: #030712;">
+                <i data-lucide="plus-circle" style="width: 20px; height: 20px; margin-right: 0.5rem;"></i>
+                Register Unlisted Entry
+            </button>
         </div>
     </div>
 </div>
@@ -164,26 +188,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const barcodeInput = document.getElementById('barcode-input');
     const scanContent = document.getElementById('scan-content');
-    const idleMessage = document.getElementById('idle-message');
     const selectedProduct = document.getElementById('selected-product');
     const selectedName = document.getElementById('selected-name');
     const selectedBarcode = document.getElementById('selected-barcode');
     const currentCountEl = document.getElementById('current-count');
     const recentList = document.getElementById('recent-list');
     const btnSave = document.getElementById('btn-save');
-    const btnScanMode = document.getElementById('btn-scan-mode');
     const btnSearchMode = document.getElementById('btn-search-mode');
     const btnSync = document.getElementById('btn-sync');
     const syncStatusEl = document.getElementById('sync-status');
 
     function updateDisplay() {
         if (currentBarcode) {
-            idleMessage.style.display = 'none';
             selectedProduct.style.display = 'block';
             selectedName.textContent = currentName;
             selectedBarcode.textContent = currentBarcode;
         } else {
-            idleMessage.style.display = 'block';
             selectedProduct.style.display = 'none';
         }
 
@@ -246,11 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         syncPendingLogs(true);
     });
 
-    btnScanMode.addEventListener('click', () => {
-        scanModeActive = true;
-        barcodeInput.focus();
-        vibrate(30);
-    });
+    // Camera mode removed as per user request
 
     btnSearchMode.addEventListener('click', () => {
         modalOpen = true;
@@ -330,12 +346,10 @@ document.addEventListener('DOMContentLoaded', () => {
             selectProduct(item.b, item.n);
         } else {
             selectedProduct.style.display = 'none';
-            idleMessage.innerHTML = `<p style="color: var(--accent-warning); font-weight: 700;">UNRECOGNIZED: ${code}</p>`;
             vibrate([80, 50, 80]);
             scanContent.classList.toggle('scan-border-warning');
             setTimeout(() => {
-                idleMessage.innerHTML = '<div style="width: 48px; height: 48px; background: var(--bg-muted); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; border: 1px solid var(--border-glass);"><i data-lucide="barcode" style="width: 24px; height: 24px; color: var(--text-muted);"></i></div><p style="color: var(--text-muted); font-size: 0.875rem; font-weight: 500;">Ready for capture</p>';
-                lucide.createIcons();
+                scanContent.classList.remove('scan-border-warning');
             }, 2000);
         }
     }
@@ -525,6 +539,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnForceSync.addEventListener('click', () => syncPendingLogs(false));
     btnSync.addEventListener('click', () => syncPendingLogs(false));
+    
+    // Unlisted Mode Logic
+    const unlistedModal = document.getElementById('unlisted-modal');
+    const btnUnlisted = document.getElementById('btn-unlisted');
+    const btnSaveUnlisted = document.getElementById('btn-save-unlisted');
+    
+    btnUnlisted.addEventListener('click', () => {
+        unlistedModal.style.display = 'block';
+        vibrate(30);
+    });
+
+    document.getElementById('close-unlisted').addEventListener('click', () => {
+        unlistedModal.style.display = 'none';
+    });
+
+    btnSaveUnlisted.addEventListener('click', () => {
+        const barcode = document.getElementById('unlisted-barcode').value.trim();
+        const name = document.getElementById('unlisted-name').value.trim();
+        const qty = parseInt(document.getElementById('unlisted-qty').value);
+
+        if (!barcode || !name || isNaN(qty) || qty <= 0) {
+            showToast('Please complete all unlisted fields', 'error');
+            vibrate([50, 100, 50]);
+            return;
+        }
+
+        logScan(barcode, qty, true, name);
+        addToRecent(name, qty);
+        showToast('Unlisted entry recorded', 'success');
+        vibrate(100);
+        
+        // Clear and close
+        document.getElementById('unlisted-barcode').value = '';
+        document.getElementById('unlisted-name').value = '';
+        document.getElementById('unlisted-qty').value = '';
+        unlistedModal.style.display = 'none';
+        
+        syncPendingLogs(true);
+    });
+
     document.getElementById('btn-clear-recent').addEventListener('click', () => recentList.innerHTML = '');
     
     setInterval(() => { 
