@@ -25,4 +25,8 @@ urlpatterns = [
     
     path('session/<uuid:session_id>/archive/', views.archive_session, name='archive_session'),
     path('archives/', views.archived_sessions, name='archived_sessions'),
+    
+    # Team Management
+    path('team/', views.team_list, name='team_list'),
+    path('team/create/', views.user_create, name='user_create'),
 ]

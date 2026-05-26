@@ -212,13 +212,33 @@
         .supervisor-header {
             padding: 1rem;
             flex-direction: column;
-            gap: 1rem;
+            align-items: center;
+            gap: 1.25rem;
+            text-align: center;
+        }
+
+        .supervisor-header > div:first-child {
+            flex-direction: column;
+            gap: 0.75rem;
         }
         
         .supervisor-nav {
             width: 100%;
             justify-content: center;
             gap: 0.5rem;
+        }
+
+        .supervisor-header > div:last-child {
+            width: 100%;
+            justify-content: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-glass);
+            gap: 1rem;
+        }
+
+        .supervisor-header > div:last-child > div:first-child {
+            border-right: none;
+            padding-right: 0;
         }
         
         .supervisor-nav a {
@@ -289,6 +309,7 @@
         <nav class="supervisor-nav">
             <a href="{% url 'supervisor:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
             <a href="{% url 'supervisor:archived_sessions' %}" class="{% if request.resolver_match.url_name == 'archived_sessions' %}active{% endif %}">Archives</a>
+            <a href="{% url 'supervisor:team_list' %}" class="{% if request.resolver_match.url_name == 'team_list' %}active{% endif %}">Team</a>
         </nav>
     </div>
 

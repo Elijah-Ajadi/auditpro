@@ -1,0 +1,89 @@
+{% extends "base_supervisor.html" %}
+
+{% block title %}Add Supervisor - AuditPro{% endblock %}
+
+{% block main %}
+<div style="max-width: 600px; margin: 0 auto; animation: slideUp 0.4s ease-out;">
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2.5rem;">
+        <a href="{% url 'supervisor:team_list' %}" style="width: 40px; height: 40px; border-radius: 0.75rem; background: var(--bg-muted); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); text-decoration: none; border: 1px solid var(--border-glass); transition: all 0.2s;" onmouseover="this.style.background='var(--border-glass)'" onmouseout="this.style.background='var(--bg-muted)'">
+            <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
+        </a>
+        <div>
+            <h2 style="font-size: 1.875rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.25rem;">New Supervisor</h2>
+            <p style="color: var(--text-secondary); font-size: 0.875rem;">Create a new administrative account for AuditPro</p>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div style="padding: 1rem; margin-bottom: 1.5rem; border-radius: 0.75rem; background: rgba(239, 68, 68, 0.1); color: var(--accent-error); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; gap: 0.75rem;">
+            <i data-lucide="alert-circle" style="width: 18px; height: 18px;"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card" style="padding: 2.5rem;">
+        <form method="post" style="display: flex; flex-direction: column; gap: 2rem;">
+            {% csrf_token %}
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div>
+                    <label for="first_name" style="display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">First Name</label>
+                    <input type="text" id="first_name" name="first_name" class="input-field" placeholder="John" style="width: 100%;" required>
+                </div>
+                <div>
+                    <label for="last_name" style="display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" class="input-field" placeholder="Doe" style="width: 100%;" required>
+                </div>
+            </div>
+
+            <div>
+                <label for="username" style="display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">System Username</label>
+                <div style="position: relative;">
+                    <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-weight: 700;">@</span>
+                    <input type="text" id="username" name="username" class="input-field" placeholder="johndoe" style="width: 100%; padding-left: 2.25rem;" required>
+                </div>
+                <p style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.6875rem;">This will be used for portal login</p>
+            </div>
+
+            <div>
+                <label for="password" style="display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Security Password</label>
+                <input type="password" id="password" name="password" class="input-field" placeholder="••••••••" style="width: 100%;" required>
+            </div>
+
+            <div style="padding-top: 1rem; border-top: 1px solid var(--border-glass);">
+                <button type="submit" class="btn btn-primary" style="width: 100%; height: 54px; font-size: 1rem; font-weight: 800;">
+                    <i data-lucide="user-check" style="width: 20px; height: 20px;"></i>
+                    Create Administrative Account
+                </button>
+                <p style="text-align: center; margin-top: 1.25rem; color: var(--text-muted); font-size: 0.75rem;">
+                    <i data-lucide="info" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 0.25rem;"></i>
+                    New supervisors will have immediate access to all management tools.
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .input-field {
+        background: var(--bg-muted) !important;
+        border: 1px solid var(--border-glass) !important;
+        border-radius: 0.75rem !important;
+        padding: 0.875rem 1rem !important;
+        color: white !important;
+        font-family: inherit !important;
+        transition: all 0.2s !important;
+    }
+    .input-field:focus {
+        border-color: var(--accent-primary) !important;
+        outline: none !important;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+    }
+</style>
+{% endblock %}

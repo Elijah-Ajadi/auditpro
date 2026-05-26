@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Sum, Count, Max
@@ -333,3 +334,39 @@ def archived_sessions(request):
     return render(request, 'supervisor/archived_sessions.html', {
         'sessions': sessions,
     })
+@login_required
+def team_list(request):
+    supervisors = User.objects.filter(is_staff=True).order_by('username')
+    return render(request, 'supervisor/team_list.html', {'supervisors': supervisors})
+
+
+@login_required
+def user_create(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        password = request.POST.get('password', '')
+        
+        if not all([username, password]):
+            messages.error(request, 'Username and Password are required.')
+            return render(request, 'supervisor/user_create.html')
+            
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists.')
+            return render(request, 'supervisor/user_create.html')
+            
+        try:
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                is_staff=True # Ensure they can access supervisor views
+            )
+            messages.success(request, f'Supervisor account "{username}" created successfully.')
+            return redirect('supervisor:team_list')
+        except Exception as e:
+            messages.error(request, f'Error creating user: {str(e)}')
+            
+    return render(request, 'supervisor/user_create.html')
