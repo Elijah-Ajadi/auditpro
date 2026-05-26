@@ -1,4 +1,5 @@
 {% extends "base_auditor.html" %}
+{% load static %}
 
 {% block title %}Scan Session{% endblock %}
 
@@ -8,9 +9,7 @@
 
 <header class="auditor-header">
     <div style="display: flex; align-items: center; gap: 0.75rem;">
-        <div style="background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple)); width: 32px; height: 32px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);">
-            <i data-lucide="scan" style="width: 18px; height: 18px; color: #030712;"></i>
-        </div>
+        <img src="{% static 'core/img/logo.png' %}" alt="Logo" style="width: 32px; height: 32px; border-radius: 0.75rem; object-fit: contain; background: white; padding: 2px;">
         <h1>Audit Pro</h1>
     </div>
     

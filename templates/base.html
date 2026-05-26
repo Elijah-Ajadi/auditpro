@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Audit Pro{% endblock %}</title>
+    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'core/img/logo.png' %}">
     <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
     {% block extra_head %}{% endblock %}
 </head>

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Audit Pro - Supervisor{% endblock %}
 
@@ -305,7 +306,10 @@
 {% block content %}
 <header class="supervisor-header">
     <div style="display: flex; align-items: center; gap: 2rem;">
-        <h1>Audit Pro</h1>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <img src="{% static 'core/img/logo.png' %}" alt="Logo" style="width: 32px; height: 32px; border-radius: 0.5rem; object-fit: contain;">
+            <h1>Audit Pro</h1>
+        </div>
         <nav class="supervisor-nav">
             <a href="{% url 'supervisor:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
             <a href="{% url 'supervisor:archived_sessions' %}" class="{% if request.resolver_match.url_name == 'archived_sessions' %}active{% endif %}">Archives</a>
