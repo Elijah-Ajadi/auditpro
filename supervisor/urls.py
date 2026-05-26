@@ -4,6 +4,8 @@ from . import views, exports
 app_name = 'supervisor'
 
 urlpatterns = [
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
     path('', views.dashboard, name='dashboard'),
     path('create/', views.audit_create, name='audit_create'),
     path('upload/<uuid:session_id>/', views.audit_upload, name='audit_upload'),

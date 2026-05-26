@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 import environ
 from pathlib import Path
 
@@ -107,3 +108,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Authentication
+LOGIN_URL = 'supervisor:login'
+LOGIN_REDIRECT_URL = 'supervisor:dashboard'
+LOGOUT_REDIRECT_URL = 'supervisor:login'

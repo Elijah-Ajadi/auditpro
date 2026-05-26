@@ -4,6 +4,8 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Sum, Count, Max
 from django.urls import reverse
@@ -13,6 +15,30 @@ from core.models import AuditSession, CatalogItem, AuditLogEntry, AuditorSession
 from core.utils import parse_uploaded_file, detect_column_mapping, apply_mapping_and_parse, generate_qr_code_base64, EXPECTED_FIELDS
 
 
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('supervisor:dashboard')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect('supervisor:dashboard')
+        else:
+            messages.error(request, 'Invalid username or password.')
+            
+    return render(request, 'supervisor/login.html')
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('supervisor:login')
+
+
+@login_required
 def dashboard(request):
     sessions = AuditSession.objects.exclude(status='archived').order_by('-created_at')[:20]
     return render(request, 'supervisor/dashboard.html', {
@@ -20,6 +46,7 @@ def dashboard(request):
     })
 
 
+@login_required
 def audit_create(request):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
@@ -33,6 +60,7 @@ def audit_create(request):
     return render(request, 'supervisor/audit_create.html')
 
 
+@login_required
 def audit_upload(request, session_id):
     session = get_object_or_404(AuditSession, id=session_id)
 
@@ -67,6 +95,7 @@ def audit_upload(request, session_id):
     return render(request, 'supervisor/audit_upload.html', {'session': session})
 
 
+@login_required
 @require_POST
 def submit_column_mapping(request, session_id):
     session = get_object_or_404(AuditSession, id=session_id)
@@ -123,6 +152,7 @@ def submit_column_mapping(request, session_id):
     })
 
 
+@login_required
 @require_POST
 def confirm_import(request, session_id):
     session = get_object_or_404(AuditSession, id=session_id)
@@ -156,6 +186,7 @@ def confirm_import(request, session_id):
     return redirect('supervisor:session_detail', session_id=session_id)
 
 
+@login_required
 def session_detail(request, session_id):
     session = get_object_or_404(AuditSession, id=session_id)
     join_url = request.build_absolute_uri(reverse('auditor:join_with_pin', args=[session.session_pin]))
@@ -171,11 +202,13 @@ def session_detail(request, session_id):
     })
 
 
+@login_required
 def monitor(request, session_id):
     session = get_object_or_404(AuditSession, id=session_id)
     return render(request, 'supervisor/monitor.html', {'session': session})
 
 
+@login_required
 def monitor_refresh(request, session_id):
     session = get_object_or_404(AuditSession, id=session_id)
     cutoff = timezone.now() - timedelta(minutes=5)
@@ -248,6 +281,7 @@ def monitor_refresh(request, session_id):
 
 from .logic import get_session_variance_data, get_session_activity_data
 
+@login_required
 def variance(request, session_id):
     session = get_object_or_404(AuditSession, id=session_id)
     data = get_session_variance_data(session)
@@ -263,6 +297,7 @@ def variance(request, session_id):
     return render(request, 'supervisor/variance.html', context)
 
 
+@login_required
 @require_POST
 def trigger_recount(request, session_id, barcode):
     session = get_object_or_404(AuditSession, id=session_id)
@@ -282,6 +317,7 @@ def trigger_recount(request, session_id, barcode):
     return redirect('supervisor:variance', session_id=session_id)
 
 
+@login_required
 @require_POST
 def archive_session(request, session_id):
     session = get_object_or_404(AuditSession, id=session_id)
@@ -291,6 +327,7 @@ def archive_session(request, session_id):
     return redirect('supervisor:dashboard')
 
 
+@login_required
 def archived_sessions(request):
     sessions = AuditSession.objects.filter(status='archived').order_by('-created_at')
     return render(request, 'supervisor/archived_sessions.html', {

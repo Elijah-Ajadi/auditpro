@@ -284,11 +284,29 @@
 
 {% block content %}
 <header class="supervisor-header">
-    <h1>Audit Pro</h1>
-    <nav class="supervisor-nav">
-        <a href="{% url 'supervisor:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
-        <a href="{% url 'supervisor:archived_sessions' %}" class="{% if request.resolver_match.url_name == 'archived_sessions' %}active{% endif %}">Archives</a>
-    </nav>
+    <div style="display: flex; align-items: center; gap: 2rem;">
+        <h1>Audit Pro</h1>
+        <nav class="supervisor-nav">
+            <a href="{% url 'supervisor:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
+            <a href="{% url 'supervisor:archived_sessions' %}" class="{% if request.resolver_match.url_name == 'archived_sessions' %}active{% endif %}">Archives</a>
+        </nav>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; padding-right: 1.5rem; border-right: 1px solid var(--border-glass);">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; color: white; text-transform: uppercase;">
+                {{ request.user.username|slice:":1" }}
+            </div>
+            <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 0.8125rem; font-weight: 700; color: var(--text-primary);">{{ request.user.get_full_name|default:request.user.username }}</span>
+                <span style="font-size: 0.625rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Supervisor</span>
+            </div>
+        </div>
+        <a href="{% url 'supervisor:logout' %}" style="color: var(--text-secondary); text-decoration: none; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; transition: color 0.2s;" onmouseover="this.style.color='var(--accent-error)'" onmouseout="this.style.color='var(--text-secondary)'">
+            <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
+            Sign Out
+        </a>
+    </div>
 </header>
 <main class="container">
     {% block main %}{% endblock %}
