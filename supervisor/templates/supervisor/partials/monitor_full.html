@@ -48,8 +48,8 @@
         </div>
         
         {% if auditors %}
-        <div style="overflow-x: auto;">
-            <table>
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            <table class="monitor-table-condensed">
                 <thead>
                     <tr>
                         <th>Identity</th>
@@ -107,8 +107,8 @@
         </div>
 
         {% if recent_activity %}
-        <div style="max-height: 500px; overflow-y: auto;">
-            <table>
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            <table class="monitor-table-condensed">
                 <thead>
                     <tr>
                         <th>Product Asset</th>

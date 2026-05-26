@@ -50,8 +50,8 @@ def get_session_variance_data(session):
         count=Count('id')
     ).order_by('-total')
 
-    # Sort by absolute variance
-    variance_data.sort(key=lambda x: abs(x['variance']), reverse=True)
+    # Sort by product name alphabetically
+    variance_data.sort(key=lambda x: x['product_name'].lower())
 
     return {
         'variance_data': variance_data,

@@ -269,7 +269,10 @@
             display: none; /* Hide headers on very small screens or use card-based table */
         }
         
-        table, tbody, tr, td {
+        table.stack-on-mobile, 
+        table.stack-on-mobile tbody, 
+        table.stack-on-mobile tr, 
+        table.stack-on-mobile td {
             display: block;
             width: 100%;
         }
@@ -292,6 +295,40 @@
             color: var(--text-muted);
             text-transform: uppercase;
             margin-bottom: 0.125rem;
+        }
+
+        /* Global Condensed Table (Horizontal on Mobile) */
+        .monitor-table-condensed {
+            display: table !important;
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
+        .monitor-table-condensed thead {
+            display: table-header-group !important;
+        }
+        .monitor-table-condensed thead th {
+            display: table-cell !important;
+            padding: 0.75rem 1rem !important;
+            font-size: 0.7rem !important;
+            white-space: nowrap;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .monitor-table-condensed tbody {
+            display: table-row-group !important;
+        }
+        .monitor-table-condensed tr {
+            display: table-row !important;
+            border-bottom: 1px solid var(--border-glass) !important;
+        }
+        .monitor-table-condensed td {
+            display: table-cell !important;
+            padding: 0.75rem 1rem !important;
+            white-space: nowrap;
+            vertical-align: middle;
+            border: none !important;
+        }
+        .monitor-table-condensed td::before {
+            display: none !important;
         }
     }
 
