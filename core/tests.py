@@ -57,7 +57,6 @@ class AuditLogEntryModelTest(TestCase):
         entry = AuditLogEntry.objects.create(
             session=self.session,
             auditor_id='John',
-            zone='A1',
             barcode='123456',
             delta=5,
             timestamp='2026-01-01T00:00:00Z',
@@ -67,11 +66,11 @@ class AuditLogEntryModelTest(TestCase):
 
     def test_event_sourced_aggregation(self):
         AuditLogEntry.objects.create(
-            session=self.session, auditor_id='John', zone='A1',
+            session=self.session, auditor_id='John',
             barcode='123456', delta=10, timestamp='2026-01-01T00:00:00Z',
         )
         AuditLogEntry.objects.create(
-            session=self.session, auditor_id='John', zone='A1',
+            session=self.session, auditor_id='John',
             barcode='123456', delta=3, timestamp='2026-01-01T00:01:00Z',
         )
         from django.db.models import Sum
@@ -82,7 +81,7 @@ class AuditLogEntryModelTest(TestCase):
 
     def test_unlisted_item_flag(self):
         entry = AuditLogEntry.objects.create(
-            session=self.session, auditor_id='John', zone='A1',
+            session=self.session, auditor_id='John',
             barcode='UNLISTED_001', delta=2, timestamp='2026-01-01T00:00:00Z',
             is_unlisted=True, unlisted_label='Mystery Item',
         )
@@ -115,3 +114,26 @@ class ColumnMappingTest(TestCase):
         self.assertEqual(len(parsed), 2)
         self.assertEqual(parsed[0]['barcode'], '111')
         self.assertEqual(parsed[0]['expected_quantity'], 10)
+
+    def test_apply_mapping_non_string_types(self):
+        import numpy as np
+        rows = [
+            {'item_code': 123456789012, 'name': 'Numeric Barcode', 'qty': 15.0},
+            {'item_code': 9876.0, 'name': 100, 'qty': '25'},
+            {'item_code': np.nan, 'name': 'Missing Barcode', 'qty': 10},
+            {'item_code': '333', 'name': None, 'qty': np.nan},
+        ]
+        mapping = {'barcode': 'item_code', 'product_name': 'name', 'expected_quantity': 'qty'}
+        parsed = apply_mapping_and_parse(rows, mapping)
+        self.assertEqual(len(parsed), 3)
+        self.assertEqual(parsed[0]['barcode'], '123456789012')
+        self.assertEqual(parsed[0]['product_name'], 'Numeric Barcode')
+        self.assertEqual(parsed[0]['expected_quantity'], 15)
+
+        self.assertEqual(parsed[1]['barcode'], '9876')
+        self.assertEqual(parsed[1]['product_name'], '100')
+        self.assertEqual(parsed[1]['expected_quantity'], 25)
+
+        self.assertEqual(parsed[2]['barcode'], '333')
+        self.assertEqual(parsed[2]['product_name'], '')
+        self.assertIsNone(parsed[2]['expected_quantity'])
