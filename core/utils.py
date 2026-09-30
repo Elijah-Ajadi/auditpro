@@ -49,7 +49,9 @@ STANDARD_HEADERS = {
 
 
 def normalize_header(h):
-    return h.lower().strip().replace('-', '_').replace('  ', ' ')
+    if pd.isna(h) or h is None:
+        return ''
+    return str(h).lower().strip().replace('-', '_').replace('  ', ' ')
 
 
 def detect_column_mapping(headers):
@@ -70,10 +72,17 @@ def apply_mapping_and_parse(rows, column_mapping):
     for row in rows:
         item = {}
         for field, source_col in column_mapping.items():
-            value = row.get(source_col, '').strip() if row.get(source_col) else ''
+            raw_val = row.get(source_col) if source_col else None
+            if pd.isna(raw_val) or raw_val is None:
+                value = ''
+            elif isinstance(raw_val, float) and raw_val.is_integer():
+                value = str(int(raw_val)).strip()
+            else:
+                value = str(raw_val).strip()
+
             if field == 'expected_quantity':
                 try:
-                    value = int(value) if value else None
+                    value = int(float(value)) if value else None
                 except (ValueError, TypeError):
                     value = None
             item[field] = value
